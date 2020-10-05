@@ -1,0 +1,64 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: t4
+  labels:
+    name: t4
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-kubernetes-first
+  namespace: t4
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello-kubernetes-first
+  template:
+    metadata:
+      labels:
+        app: hello-kubernetes-first
+    spec:
+      containers:
+        - name: hello-kubernetes
+          image: paulbouwer/hello-kubernetes:1.7
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MESSAGE
+              value: Hello from the first deployment!
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-kubernetes-first
+  namespace: t4
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: hello-kubernetes-first
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: hello-kubernetes-ingress
+  namespace: t4
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+spec:
+  tls:
+    - hosts:
+        - tenant1.membermatters.co
+      secretName: echo-tls
+  rules:
+    - host: tenant1.membermatters.co
+      http:
+        paths:
+          - backend:
+              serviceName: hello-kubernetes-first
+              servicePort: 80
