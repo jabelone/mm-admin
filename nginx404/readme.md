@@ -1,10 +1,20 @@
 # Custom default backend (ie custom error page)
+This lets you create a custom default backend, ie if the ingress-nginx controller doesn't 
+know where to route a request. This lets you create a custom error page that's a little 
+nicer than the default nginx one. You could also implement custom redirect logic etc. by 
+editing the nginx config.
+
+### Build the Docker image
+Build the `Dockerfile` in this folder and publish to your favourite registry (like [hub.docker.com](hub.docker.com)).
+Then update the `default-nginx-backend.yaml` to specify the image you created.
 
 ### Create the custom backend container
-Apply the default-nginx.yaml file to create a container to serve the custom error page with: `kubectl apply -f default-nginx-backend.yaml`
+Apply the `default-nginx-backend.yaml` file to create a container to serve the custom error page with: `kubectl apply -f default-nginx-backend.yaml`
 
 ### Install the nginx ingress controller
-On most cloud platforms with will automatically provision an externally accessible load balancer.
+On most cloud platforms this will automatically provision an externally accessible load balancer.
+
+You can get it's IP address by running this command and looking for the EXTERNAL-IP: `kubectl get svc --namespace=ingress-nginx` 
 
 Install the nginx ingress controller with: `helm install ingress-nginx --namespace ingress-nginx ingress-nginx/ingress-nginx`
 
